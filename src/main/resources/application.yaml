@@ -9,7 +9,7 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         "[format_sql]": true
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: update
   mail:
     host: smtp.gmail.com
     port: 587
@@ -34,6 +34,9 @@ application:
     default-url: http://localhost:8080
   server:
     time-zone: Asia/Ho_Chi_Minh
+  storage:
+    bucket: thanhsang_capstone
+    baseUrl: https://storage.googleapis.com/
 
 server:
   servlet:

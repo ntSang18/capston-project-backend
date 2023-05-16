@@ -10,7 +10,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
@@ -19,7 +18,6 @@ import lombok.ToString;
 @Getter
 @Setter
 @ToString
-@NoArgsConstructor
 public class Address {
 
   @Id
@@ -44,4 +42,12 @@ public class Address {
   @JsonIgnore
   @OneToOne(mappedBy = "address")
   private User user;
+
+  public Address() {
+    this.province = "";
+    this.district = "";
+    this.commune = "";
+    this.street = "";
+    this.specificAddress = "";
+  }
 }

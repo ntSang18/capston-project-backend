@@ -69,7 +69,7 @@ public class AuthServiceImpl implements IAuthService {
   @Override
   public void register(RegisterRequest req) throws EmailTakenException {
     if (userRepository.findByEmail(req.email()).isPresent()) {
-      throw new EmailTakenException("Email taken");
+      throw new EmailTakenException(ErrorMessage.EMAIL_TAKEN);
     }
 
     String token = signUp(

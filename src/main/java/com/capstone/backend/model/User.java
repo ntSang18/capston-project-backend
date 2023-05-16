@@ -76,7 +76,7 @@ public class User {
   private boolean locked;
 
   @OneToOne(cascade = CascadeType.ALL)
-  @JoinColumn(name = "address_id", nullable = true, referencedColumnName = "id")
+  @JoinColumn(name = "address_id", referencedColumnName = "id")
   private Address address;
 
   @OneToMany(mappedBy = "user", orphanRemoval = true, cascade = CascadeType.ALL)
@@ -94,6 +94,8 @@ public class User {
     this.isDeleted = false;
     this.enabled = false;
     this.locked = false;
+    Address address = new Address();
+    this.address = address;
   }
 
   public void addToken(Token token) {
