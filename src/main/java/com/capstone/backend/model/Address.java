@@ -31,10 +31,7 @@ public class Address {
   private String district;
 
   @Column(nullable = false)
-  private String commune;
-
-  @Column(nullable = true)
-  private String street;
+  private String ward;
 
   @Column(nullable = false)
   private String specificAddress;
@@ -46,8 +43,7 @@ public class Address {
   public Address() {
     this.province = "";
     this.district = "";
-    this.commune = "";
-    this.street = "";
+    this.ward = "";
     this.specificAddress = "";
   }
 }

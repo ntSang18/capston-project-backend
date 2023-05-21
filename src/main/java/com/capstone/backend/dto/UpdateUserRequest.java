@@ -15,7 +15,7 @@ public record UpdateUserRequest(
     Optional<String> role,
     Optional<String> province,
     Optional<String> district,
-    Optional<String> commune,
-    @JsonProperty("specific_address") Optional<String> specificAddress) {
+    Optional<String> ward,
+    Optional<String> specific_address) {
 
 }

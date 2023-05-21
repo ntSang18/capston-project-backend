@@ -21,11 +21,12 @@ public class UserResponseMapper implements Function<User, UserResponse> {
         user.getImageUrl(),
         user.getRole().name(),
         user.getBalance(),
+        user.isLocked(),
         user.getCreatedAt(),
         user.getUpdatedAt(),
         user.getAddress().getProvince(),
         user.getAddress().getProvince(),
-        user.getAddress().getCommune(),
+        user.getAddress().getWard(),
         user.getAddress().getSpecificAddress());
   }
 

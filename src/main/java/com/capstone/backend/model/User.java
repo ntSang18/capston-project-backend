@@ -87,6 +87,7 @@ public class User {
     this.password = password;
     this.phoneNumber = phoneNumber;
     this.username = username;
+    this.facebook = "";
     this.role = role;
     this.balance = 0;
     this.createdAt = LocalDateTime.now();

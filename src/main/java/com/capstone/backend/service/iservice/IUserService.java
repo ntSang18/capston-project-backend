@@ -1,15 +1,15 @@
 package com.capstone.backend.service.iservice;
 
-import java.util.List;
-
 import com.capstone.backend.dto.CreateUserRequest;
+import com.capstone.backend.dto.ListUserIdRequest;
+import com.capstone.backend.dto.ListUserResponse;
 import com.capstone.backend.dto.UpdateUserRequest;
 import com.capstone.backend.dto.UserResponse;
 import com.capstone.backend.exception.EmailTakenException;
 import com.capstone.backend.exception.ResourceNotFoundException;
 
 public interface IUserService {
-  List<UserResponse> getUsers();
+  ListUserResponse getUsers();
 
   UserResponse getUser(long id) throws ResourceNotFoundException;
 
@@ -19,5 +19,9 @@ public interface IUserService {
 
   UserResponse updateUser(UpdateUserRequest userRequest) throws ResourceNotFoundException;
 
-  void deleteUser(long id) throws ResourceNotFoundException;
+  void lockUser(ListUserIdRequest ids) throws ResourceNotFoundException;
+
+  void deleteUser(ListUserIdRequest ids) throws ResourceNotFoundException;
+
+  void unlockUser(ListUserIdRequest ids) throws ResourceNotFoundException;
 }

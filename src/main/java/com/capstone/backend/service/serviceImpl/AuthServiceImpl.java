@@ -3,25 +3,28 @@ package com.capstone.backend.service.serviceImpl;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.time.LocalDateTime;
+import java.util.Locale;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.MessageSource;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import com.capstone.backend.constant.ErrorMessage;
 import com.capstone.backend.constant.JwtConstants;
 import com.capstone.backend.constant.Roles;
 import com.capstone.backend.dto.AuthInfo;
+import com.capstone.backend.dto.ChangePasswordRequest;
 import com.capstone.backend.dto.LoginRequest;
 import com.capstone.backend.dto.RegisterRequest;
+import com.capstone.backend.exception.AccountDisableException;
+import com.capstone.backend.exception.AccountLockedException;
 import com.capstone.backend.exception.ConfirmedException;
 import com.capstone.backend.exception.EmailTakenException;
 import com.capstone.backend.exception.ExpiredTokenException;
 import com.capstone.backend.exception.InvalidCredentialsException;
 import com.capstone.backend.exception.ResourceNotFoundException;
 import com.capstone.backend.exception.UnauthenticatedException;
-import com.capstone.backend.exception.UnconfirmedException;
 import com.capstone.backend.model.Token;
 import com.capstone.backend.model.User;
 import com.capstone.backend.repository.UserRepository;
@@ -54,6 +57,8 @@ public class AuthServiceImpl implements IAuthService {
 
   private final GoogleIdTokenVerifier googleVerifier;
 
+  private final MessageSource messageSource;
+
   @Value("${application.security.access-token-secret}")
   private String accessTokenSecret;
 
@@ -69,7 +74,11 @@ public class AuthServiceImpl implements IAuthService {
   @Override
   public void register(RegisterRequest req) throws EmailTakenException {
     if (userRepository.findByEmail(req.email()).isPresent()) {
-      throw new EmailTakenException(ErrorMessage.EMAIL_TAKEN);
+      throw new EmailTakenException(
+          messageSource.getMessage(
+              "error.email-taken",
+              null,
+              Locale.getDefault()));
     }
 
     String token = signUp(
@@ -94,11 +103,17 @@ public class AuthServiceImpl implements IAuthService {
     LocalDateTime expiredAt = confirmationToken.getExpiredAt();
 
     if (expiredAt.isBefore(LocalDateTime.now())) {
-      throw new ExpiredTokenException(ErrorMessage.EXPIRED_TOKEN);
+      throw new ExpiredTokenException(messageSource.getMessage(
+          "error.expired-toke",
+          null,
+          Locale.getDefault()));
     }
 
     if (confirmationToken.getConfirmAt() != null) {
-      throw new ConfirmedException(ErrorMessage.CONFIRMED);
+      throw new ConfirmedException(messageSource.getMessage(
+          "error.confirmed",
+          null,
+          Locale.getDefault()));
     }
 
     confirmationToken.setConfirmAt(LocalDateTime.now());
@@ -113,10 +128,16 @@ public class AuthServiceImpl implements IAuthService {
   public void reconfirm(String email) throws ResourceNotFoundException, ConfirmedException {
 
     User user = userRepository.findByEmail(email)
-        .orElseThrow(() -> new ResourceNotFoundException(ErrorMessage.RESOURCE_NOT_FOUND));
+        .orElseThrow(() -> new ResourceNotFoundException(messageSource.getMessage(
+            "error.resource-not-found",
+            null,
+            Locale.getDefault())));
 
     if (user.isEnabled()) {
-      throw new ConfirmedException(ErrorMessage.CONFIRMED);
+      throw new ConfirmedException(messageSource.getMessage(
+          "error.confirmed",
+          null,
+          Locale.getDefault()));
     }
 
     Token token = tokenService.create(user);
@@ -128,17 +149,35 @@ public class AuthServiceImpl implements IAuthService {
 
   @Override
   public AuthInfo login(LoginRequest req)
-      throws UnconfirmedException,
-      InvalidCredentialsException {
+      throws AccountDisableException,
+      InvalidCredentialsException,
+      AccountLockedException {
     User user = userRepository.findByEmail(req.email())
-        .orElseThrow(() -> new InvalidCredentialsException(ErrorMessage.INVALID_CREDENTIALS));
+        .orElseThrow(() -> new InvalidCredentialsException(messageSource.getMessage(
+            "error.invalid-credentials",
+            null,
+            Locale.getDefault())));
 
-    if (!passwordEncoder.matches(req.password(), user.getPassword())) {
-      throw new InvalidCredentialsException(ErrorMessage.INVALID_CREDENTIALS);
+    if (!passwordEncoder.matches(req.password(), user.getPassword()) ||
+        !user.getRole().name().equals(req.role())) {
+      throw new InvalidCredentialsException(messageSource.getMessage(
+          "error.invalid-credentials",
+          null,
+          Locale.getDefault()));
+    }
+
+    if (user.isLocked()) {
+      throw new AccountLockedException(messageSource.getMessage(
+          "error.account-locked",
+          null,
+          Locale.getDefault()));
     }
 
     if (!user.isEnabled()) {
-      throw new UnconfirmedException(ErrorMessage.UNCONFIRMED);
+      throw new AccountDisableException(messageSource.getMessage(
+          "error.account-disable",
+          null,
+          Locale.getDefault()));
     }
 
     return new AuthInfo(
@@ -154,7 +193,10 @@ public class AuthServiceImpl implements IAuthService {
       IOException {
     GoogleIdToken idToken = googleVerifier.verify(idTokenString);
     if (idToken == null) {
-      throw new InvalidCredentialsException(ErrorMessage.INVALID_CREDENTIALS);
+      throw new InvalidCredentialsException(messageSource.getMessage(
+          "error.invalid-credentials",
+          null,
+          Locale.getDefault()));
     }
 
     Payload payload = idToken.getPayload();
@@ -169,7 +211,10 @@ public class AuthServiceImpl implements IAuthService {
       try {
         user = userRepository.save(new User(email, password, phoneNumber, username, Roles.ROLE_USER));
       } catch (Exception e) {
-        throw new EmailTakenException(ErrorMessage.EMAIL_TAKEN);
+        throw new EmailTakenException(messageSource.getMessage(
+            "error.email-taken",
+            null,
+            Locale.getDefault()));
       }
     } else {
       user = optionalUser.get();
@@ -183,7 +228,10 @@ public class AuthServiceImpl implements IAuthService {
   @Override
   public AuthInfo refreshToken(String refresh_token) throws UnauthenticatedException {
     if (jwtService.isTokenExpired(refresh_token, refreshTokenSecret)) {
-      throw new UnauthenticatedException(ErrorMessage.UNAUTHENTICATED);
+      throw new UnauthenticatedException(messageSource.getMessage(
+          "error.unauthenticated",
+          null,
+          Locale.getDefault()));
     }
     String email = jwtService.extractUsername(refresh_token, refreshTokenSecret);
     return new AuthInfo(
@@ -202,12 +250,18 @@ public class AuthServiceImpl implements IAuthService {
   }
 
   @Override
-  public void forgot(String email) throws ResourceNotFoundException, UnconfirmedException {
+  public void forgot(String email) throws ResourceNotFoundException, AccountDisableException {
     User user = userRepository.findByEmail(email)
-        .orElseThrow(() -> new ResourceNotFoundException(ErrorMessage.RESOURCE_NOT_FOUND));
+        .orElseThrow(() -> new ResourceNotFoundException(messageSource.getMessage(
+            "error.resource-not-found",
+            null,
+            Locale.getDefault())));
 
     if (!user.isEnabled()) {
-      throw new UnconfirmedException(ErrorMessage.UNCONFIRMED);
+      throw new AccountDisableException(messageSource.getMessage(
+          "error.account-disable",
+          null,
+          Locale.getDefault()));
     }
 
     Token token = tokenService.create(user);
@@ -223,7 +277,10 @@ public class AuthServiceImpl implements IAuthService {
       InvalidCredentialsException {
 
     if (!password.equals(confirmPassword)) {
-      throw new InvalidCredentialsException(ErrorMessage.INVALID_CREDENTIALS);
+      throw new InvalidCredentialsException(messageSource.getMessage(
+          "error.invalid-credentials",
+          null,
+          Locale.getDefault()));
     }
 
     Token tokenReset = tokenService.findByToken(token);
@@ -243,4 +300,25 @@ public class AuthServiceImpl implements IAuthService {
 
     return token.getToken();
   }
+
+  @Override
+  public void change(String email, ChangePasswordRequest request)
+      throws ResourceNotFoundException, InvalidCredentialsException {
+    User user = userRepository.findByEmail(email)
+        .orElseThrow(() -> new ResourceNotFoundException(messageSource.getMessage(
+            "error.resource-not-found",
+            null,
+            Locale.getDefault())));
+
+    if (passwordEncoder.matches(request.currentPassword().trim(), user.getPassword())) {
+      user.setPassword(passwordEncoder.encode(request.newPassword()));
+      userRepository.save(user);
+    } else {
+      throw new InvalidCredentialsException(messageSource.getMessage(
+          "error.invalid-credentials",
+          null,
+          Locale.getDefault()));
+    }
+  }
+
 }

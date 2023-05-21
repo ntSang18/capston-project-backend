@@ -1,7 +1,5 @@
 package com.capstone.backend.controller;
 
-import java.util.List;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +16,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.capstone.backend.dto.CreateUserRequest;
+import com.capstone.backend.dto.ListUserResponse;
+import com.capstone.backend.dto.ListUserIdRequest;
 import com.capstone.backend.dto.UpdateUserRequest;
 import com.capstone.backend.dto.UserResponse;
 import com.capstone.backend.exception.EmailTakenException;
@@ -35,7 +35,7 @@ public class UserController {
 
   @GetMapping(value = "")
   public ResponseEntity<?> getUsers() {
-    List<UserResponse> userResponses = userService.getUsers();
+    ListUserResponse userResponses = userService.getUsers();
     return new ResponseEntity<>(userResponses, HttpStatus.OK);
   }
 
@@ -68,9 +68,26 @@ public class UserController {
     return new ResponseEntity<>(userResponse, HttpStatus.OK);
   }
 
-  @DeleteMapping(value = "/{id}")
-  public ResponseEntity<?> deleteUser(@PathVariable long id) throws ResourceNotFoundException {
-    userService.deleteUser(id);
+  @PatchMapping(value = "/lock")
+  @PreAuthorize("hasRole('ROLE_ADMIN')")
+  public ResponseEntity<?> lockUser(@RequestBody ListUserIdRequest ids)
+      throws ResourceNotFoundException {
+    userService.lockUser(ids);
+    return new ResponseEntity<>(HttpStatus.OK);
+  }
+
+  @PatchMapping(value = "/unlock")
+  @PreAuthorize("hasRole('ROLE_ADMIN')")
+  public ResponseEntity<?> unlockUser(@RequestBody ListUserIdRequest ids)
+      throws ResourceNotFoundException {
+    userService.unlockUser(ids);
+    return new ResponseEntity<>(HttpStatus.OK);
+  }
+
+  @DeleteMapping(value = "")
+  public ResponseEntity<?> deleteUser(@RequestBody ListUserIdRequest ids)
+      throws ResourceNotFoundException {
+    userService.deleteUser(ids);
     return new ResponseEntity<>(HttpStatus.OK);
   }
 

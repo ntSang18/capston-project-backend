@@ -13,10 +13,11 @@ public record UserResponse(
     @JsonProperty("image_url") String imageUrl,
     String role,
     long balance,
+    boolean locked,
     @JsonProperty("created_at") LocalDateTime createdAt,
     @JsonProperty("updated_at") LocalDateTime updatedAt,
     String province,
     String district,
-    String commune,
+    String ward,
     @JsonProperty("specific_address") String specificAddress) {
 }
