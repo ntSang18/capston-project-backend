@@ -10,15 +10,19 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import com.capstone.backend.dto.ExceptionResponse;
+import com.capstone.backend.exception.AccountDisableException;
+import com.capstone.backend.exception.AccountLockedException;
 import com.capstone.backend.exception.ConfirmedException;
 import com.capstone.backend.exception.EmailTakenException;
 import com.capstone.backend.exception.ExpiredTokenException;
 import com.capstone.backend.exception.InvalidCredentialsException;
 import com.capstone.backend.exception.ResourceNotFoundException;
 import com.capstone.backend.exception.UnauthenticatedException;
-import com.capstone.backend.exception.UnconfirmedException;
+
+import lombok.extern.slf4j.Slf4j;
 
 @RestControllerAdvice
+@Slf4j
 public class ApplicationExceptionHandler {
 
   @Value("${application.server.time-zone}")
@@ -54,8 +58,8 @@ public class ApplicationExceptionHandler {
     return generateResponse(e, HttpStatus.PAYMENT_REQUIRED);
   }
 
-  @ExceptionHandler(value = { UnconfirmedException.class })
-  public ResponseEntity<?> handleException(UnconfirmedException e) {
+  @ExceptionHandler(value = { AccountDisableException.class })
+  public ResponseEntity<?> handleException(AccountDisableException e) {
     return generateResponse(e, HttpStatus.BAD_REQUEST);
   }
 
@@ -64,7 +68,13 @@ public class ApplicationExceptionHandler {
     return generateResponse(e, HttpStatus.BAD_GATEWAY);
   }
 
+  @ExceptionHandler(value = { AccountLockedException.class })
+  public ResponseEntity<?> handleException(AccountLockedException e) {
+    return generateResponse(e, HttpStatus.LOCKED);
+  }
+
   private ResponseEntity<?> generateResponse(Exception e, HttpStatus status) {
+    log.error(e.getMessage());
     ZoneId zoneId = ZoneId.of(timeZone);
     ExceptionResponse response = new ExceptionResponse(
         e.getMessage(),
