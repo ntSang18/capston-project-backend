@@ -9,11 +9,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import com.capstone.backend.dto.ExceptionResponse;
+import com.capstone.backend.dto.exception.ExceptionResponse;
 import com.capstone.backend.exception.AccountDisableException;
 import com.capstone.backend.exception.AccountLockedException;
 import com.capstone.backend.exception.ConfirmedException;
-import com.capstone.backend.exception.EmailTakenException;
+import com.capstone.backend.exception.ResourceAlreadyExists;
 import com.capstone.backend.exception.ExpiredTokenException;
 import com.capstone.backend.exception.InvalidCredentialsException;
 import com.capstone.backend.exception.ResourceNotFoundException;
@@ -33,8 +33,8 @@ public class ApplicationExceptionHandler {
     return generateResponse(e, HttpStatus.BAD_REQUEST);
   }
 
-  @ExceptionHandler(value = { EmailTakenException.class })
-  public ResponseEntity<?> handleException(EmailTakenException e) {
+  @ExceptionHandler(value = { ResourceAlreadyExists.class })
+  public ResponseEntity<?> handleException(ResourceAlreadyExists e) {
     return generateResponse(e, HttpStatus.NOT_ACCEPTABLE);
   }
 

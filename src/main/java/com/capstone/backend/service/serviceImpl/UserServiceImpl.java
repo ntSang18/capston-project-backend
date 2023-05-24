@@ -10,18 +10,18 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.capstone.backend.constant.Roles;
-import com.capstone.backend.dto.CreateUserRequest;
-import com.capstone.backend.dto.ListUserIdRequest;
-import com.capstone.backend.dto.ListUserResponse;
-import com.capstone.backend.dto.UpdateUserRequest;
-import com.capstone.backend.dto.UserResponse;
-import com.capstone.backend.exception.EmailTakenException;
+import com.capstone.backend.dto.user.CreateUserRequest;
+import com.capstone.backend.dto.user.ListUserIdRequest;
+import com.capstone.backend.dto.user.ListUserResponse;
+import com.capstone.backend.dto.user.UpdateUserRequest;
+import com.capstone.backend.dto.user.UserResponse;
+import com.capstone.backend.exception.ResourceAlreadyExists;
 import com.capstone.backend.exception.ResourceNotFoundException;
 import com.capstone.backend.mapper.UserResponseMapper;
 import com.capstone.backend.model.Address;
 import com.capstone.backend.model.User;
-import com.capstone.backend.repository.AddressRepository;
 import com.capstone.backend.repository.UserRepository;
+import com.capstone.backend.service.iservice.IAddressService;
 import com.capstone.backend.service.iservice.IFileService;
 import com.capstone.backend.service.iservice.IUserService;
 
@@ -33,7 +33,7 @@ public class UserServiceImpl implements IUserService {
 
   private final UserRepository userRepository;
 
-  private final AddressRepository addressRepository;
+  private final IAddressService addressService;
 
   private final UserResponseMapper userResponseMapper;
 
@@ -42,6 +42,12 @@ public class UserServiceImpl implements IUserService {
   private final IFileService fileService;
 
   private final MessageSource messageSource;
+
+  @Override
+  public User findById(long id) throws ResourceNotFoundException {
+    return userRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(
+        messageSource.getMessage("error.resource-not-found", null, Locale.getDefault())));
+  }
 
   @Override
   public ListUserResponse getUsers() {
@@ -85,11 +91,11 @@ public class UserServiceImpl implements IUserService {
   }
 
   @Override
-  public UserResponse createUser(CreateUserRequest userRequest) throws EmailTakenException {
+  public UserResponse createUser(CreateUserRequest userRequest) throws ResourceAlreadyExists {
 
     if (userRepository.findByEmail(userRequest.email()).isPresent()) {
-      throw new EmailTakenException(messageSource.getMessage(
-          "error.resource-not-found",
+      throw new ResourceAlreadyExists(messageSource.getMessage(
+          "error.resource-already-exists",
           null,
           Locale.getDefault()));
     }
@@ -106,14 +112,14 @@ public class UserServiceImpl implements IUserService {
   }
 
   @Override
-  public UserResponse updateUser(UpdateUserRequest userRequest) throws ResourceNotFoundException {
-    User user = userRepository.findById(userRequest.id())
+  public UserResponse updateUser(long id, UpdateUserRequest userRequest) throws ResourceNotFoundException {
+    User user = userRepository.findById(id)
         .orElseThrow(() -> new ResourceNotFoundException(messageSource.getMessage(
             "error.resource-not-found",
             null,
             Locale.getDefault())));
 
-    userRequest.phoneNumber().ifPresent(phoneNumber -> user.setPhoneNumber(phoneNumber));
+    userRequest.phone_number().ifPresent(phoneNumber -> user.setPhoneNumber(phoneNumber));
     userRequest.username().ifPresent(username -> user.setUsername(username));
     userRequest.facebook().ifPresent(facebook -> user.setFacebook(facebook));
     userRequest.role().ifPresent(role -> user.setRole(Roles.valueOf(role)));
@@ -124,12 +130,11 @@ public class UserServiceImpl implements IUserService {
             .ifPresent(imageUrl -> user.setImageUrl(imageUrl)));
 
     Address address = user.getAddress();
-    userRequest.province().ifPresent(province -> address.setProvince(province));
-    userRequest.district().ifPresent(district -> address.setDistrict(district));
-    userRequest.ward().ifPresent(ward -> address.setWard(ward));
-    userRequest.specific_address()
-        .ifPresent(specificAddress -> address.setSpecificAddress(specificAddress));
-    addressRepository.save(address);
+    address.setProvince(userRequest.province());
+    address.setDistrict(userRequest.district());
+    address.setWard(userRequest.ward());
+    address.setSpecificAddress(userRequest.specific_address());
+    addressService.save(address);
 
     return userResponseMapper.apply(userRepository.save(user));
   }
@@ -173,5 +178,4 @@ public class UserServiceImpl implements IUserService {
       userRepository.save(user);
     }
   }
-
 }

@@ -1,7 +1,8 @@
-package com.capstone.backend.dto;
+package com.capstone.backend.dto.user;
 
 import java.time.LocalDateTime;
 
+import com.capstone.backend.dto.address.AddressDto;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public record UserResponse(
@@ -16,8 +17,5 @@ public record UserResponse(
     boolean locked,
     @JsonProperty("created_at") LocalDateTime createdAt,
     @JsonProperty("updated_at") LocalDateTime updatedAt,
-    String province,
-    String district,
-    String ward,
-    @JsonProperty("specific_address") String specificAddress) {
+    AddressDto address) {
 }

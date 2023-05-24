@@ -1,4 +1,4 @@
-package com.capstone.backend.dto;
+package com.capstone.backend.dto.auth;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 

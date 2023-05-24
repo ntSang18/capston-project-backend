@@ -1,10 +1,12 @@
-package com.capstone.backend.dto;
+package com.capstone.backend.dto.user;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public record RegisterRequest(
+public record CreateUserRequest(
     String username,
     String email,
     @JsonProperty("phone_number") String phoneNumber,
-    String password) {
+    String password,
+    String role) {
+
 }

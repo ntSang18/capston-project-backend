@@ -1,9 +1,14 @@
 package com.capstone.backend.security;
 
 import java.io.IOException;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.util.Locale;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.MessageSource;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -11,7 +16,7 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import com.capstone.backend.dto.ErrorResponse;
+import com.capstone.backend.dto.exception.ExceptionResponse;
 import com.capstone.backend.service.serviceImpl.UserDetailsServiceImpl;
 import com.capstone.backend.util.JwtUtils;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -31,6 +36,13 @@ public class JwtAuthFilter extends OncePerRequestFilter {
   private final JwtUtils jwtService;
 
   private final UserDetailsServiceImpl userDetailService;
+
+  private final MessageSource messageSource;
+
+  private final Jackson2ObjectMapperBuilder mapperBuilder;
+
+  @Value("${application.server.time-zone}")
+  private String timeZone;
 
   @Value("${application.security.access-token-secret}")
   private String accessTokenSecret;
@@ -69,12 +81,13 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
       filterChain.doFilter(request, response);
     } catch (ExpiredJwtException e) {
-      ErrorResponse errorResponse = new ErrorResponse(
+      ZoneId zoneId = ZoneId.of(timeZone);
+      ExceptionResponse exceptionResponse = new ExceptionResponse(
+          messageSource.getMessage("error.unauthenticated", null, Locale.getDefault()),
           401,
-          "Unauthenticated",
-          e.getMessage());
+          ZonedDateTime.now(zoneId));
       response.setStatus(HttpStatus.UNAUTHORIZED.value());
-      response.getWriter().write(convertObjectToJson(errorResponse));
+      response.getWriter().write(convertObjectToJson(exceptionResponse));
     }
   }
 
@@ -82,7 +95,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     if (object == null) {
       return null;
     }
-    ObjectMapper mapper = new ObjectMapper();
+    ObjectMapper mapper = mapperBuilder.build();
     return mapper.writeValueAsString(object);
   }
 

@@ -13,14 +13,14 @@ import org.springframework.stereotype.Service;
 
 import com.capstone.backend.constant.JwtConstants;
 import com.capstone.backend.constant.Roles;
-import com.capstone.backend.dto.AuthInfo;
-import com.capstone.backend.dto.ChangePasswordRequest;
-import com.capstone.backend.dto.LoginRequest;
-import com.capstone.backend.dto.RegisterRequest;
+import com.capstone.backend.dto.auth.AuthInfo;
+import com.capstone.backend.dto.auth.ChangePasswordRequest;
+import com.capstone.backend.dto.auth.LoginRequest;
+import com.capstone.backend.dto.auth.RegisterRequest;
 import com.capstone.backend.exception.AccountDisableException;
 import com.capstone.backend.exception.AccountLockedException;
 import com.capstone.backend.exception.ConfirmedException;
-import com.capstone.backend.exception.EmailTakenException;
+import com.capstone.backend.exception.ResourceAlreadyExists;
 import com.capstone.backend.exception.ExpiredTokenException;
 import com.capstone.backend.exception.InvalidCredentialsException;
 import com.capstone.backend.exception.ResourceNotFoundException;
@@ -72,11 +72,11 @@ public class AuthServiceImpl implements IAuthService {
   private String backendUrl;
 
   @Override
-  public void register(RegisterRequest req) throws EmailTakenException {
+  public void register(RegisterRequest req) throws ResourceAlreadyExists {
     if (userRepository.findByEmail(req.email()).isPresent()) {
-      throw new EmailTakenException(
+      throw new ResourceAlreadyExists(
           messageSource.getMessage(
-              "error.email-taken",
+              "error.resource-already-exists",
               null,
               Locale.getDefault()));
     }
@@ -188,7 +188,7 @@ public class AuthServiceImpl implements IAuthService {
   @Override
   public AuthInfo googleOAuth2Login(String idTokenString)
       throws InvalidCredentialsException,
-      EmailTakenException,
+      ResourceAlreadyExists,
       GeneralSecurityException,
       IOException {
     GoogleIdToken idToken = googleVerifier.verify(idTokenString);
@@ -211,7 +211,7 @@ public class AuthServiceImpl implements IAuthService {
       try {
         user = userRepository.save(new User(email, password, phoneNumber, username, Roles.ROLE_USER));
       } catch (Exception e) {
-        throw new EmailTakenException(messageSource.getMessage(
+        throw new ResourceAlreadyExists(messageSource.getMessage(
             "error.email-taken",
             null,
             Locale.getDefault()));

@@ -1,4 +1,4 @@
-package com.capstone.backend.dto;
+package com.capstone.backend.dto.user;
 
 import java.util.List;
 

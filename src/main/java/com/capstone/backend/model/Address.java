@@ -40,10 +40,21 @@ public class Address {
   @OneToOne(mappedBy = "address")
   private User user;
 
+  @JsonIgnore
+  @OneToOne(mappedBy = "address")
+  private Post post;
+
   public Address() {
     this.province = "";
     this.district = "";
     this.ward = "";
     this.specificAddress = "";
+  }
+
+  public Address(String province, String district, String ward, String specificAddress) {
+    this.province = province;
+    this.district = district;
+    this.ward = ward;
+    this.specificAddress = specificAddress;
   }
 }
