@@ -10,8 +10,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.capstone.backend.constant.Roles;
+import com.capstone.backend.dto.common.ListIdRequest;
 import com.capstone.backend.dto.user.CreateUserRequest;
-import com.capstone.backend.dto.user.ListUserIdRequest;
 import com.capstone.backend.dto.user.ListUserResponse;
 import com.capstone.backend.dto.user.UpdateUserRequest;
 import com.capstone.backend.dto.user.UserResponse;
@@ -140,7 +140,7 @@ public class UserServiceImpl implements IUserService {
   }
 
   @Override
-  public void lockUser(ListUserIdRequest ids) throws ResourceNotFoundException {
+  public void lockUser(ListIdRequest ids) throws ResourceNotFoundException {
     for (long id : ids.ids()) {
       User user = userRepository.findById(id)
           .orElseThrow(() -> new ResourceNotFoundException(messageSource.getMessage(
@@ -153,7 +153,7 @@ public class UserServiceImpl implements IUserService {
   }
 
   @Override
-  public void unlockUser(ListUserIdRequest ids)
+  public void unlockUser(ListIdRequest ids)
       throws ResourceNotFoundException {
     for (long id : ids.ids()) {
       User user = userRepository.findById(id)
@@ -167,7 +167,7 @@ public class UserServiceImpl implements IUserService {
   }
 
   @Override
-  public void deleteUser(ListUserIdRequest ids) throws ResourceNotFoundException {
+  public void deleteUser(ListIdRequest ids) throws ResourceNotFoundException {
     for (long id : ids.ids()) {
       User user = userRepository.findById(id)
           .orElseThrow(() -> new ResourceNotFoundException(messageSource.getMessage(

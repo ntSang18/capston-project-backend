@@ -1,8 +1,11 @@
 package com.capstone.backend.dto.post;
 
+import java.util.List;
+import java.util.Optional;
+
 import org.springframework.web.multipart.MultipartFile;
 
-public record CreatePublicPostRequest(
+public record UpdatePostRequest(
     String title,
     String description,
     long price,
@@ -14,8 +17,9 @@ public record CreatePublicPostRequest(
     String district,
     String ward,
     String specific_address,
-    MultipartFile[] images,
+    Optional<List<Long>> removed_media_ids,
+    Optional<MultipartFile[]> images,
     String expired_at,
-    long catalog_id,
-    long user_id) {
+    long catalog_id) {
+
 }

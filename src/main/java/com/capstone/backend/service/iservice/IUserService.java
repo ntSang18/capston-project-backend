@@ -1,7 +1,7 @@
 package com.capstone.backend.service.iservice;
 
+import com.capstone.backend.dto.common.ListIdRequest;
 import com.capstone.backend.dto.user.CreateUserRequest;
-import com.capstone.backend.dto.user.ListUserIdRequest;
 import com.capstone.backend.dto.user.ListUserResponse;
 import com.capstone.backend.dto.user.UpdateUserRequest;
 import com.capstone.backend.dto.user.UserResponse;
@@ -23,9 +23,9 @@ public interface IUserService {
 
   UserResponse updateUser(long id, UpdateUserRequest userRequest) throws ResourceNotFoundException;
 
-  void lockUser(ListUserIdRequest ids) throws ResourceNotFoundException;
+  void lockUser(ListIdRequest ids) throws ResourceNotFoundException;
 
-  void deleteUser(ListUserIdRequest ids) throws ResourceNotFoundException;
+  void deleteUser(ListIdRequest ids) throws ResourceNotFoundException;
 
-  void unlockUser(ListUserIdRequest ids) throws ResourceNotFoundException;
+  void unlockUser(ListIdRequest ids) throws ResourceNotFoundException;
 }

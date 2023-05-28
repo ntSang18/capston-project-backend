@@ -1,5 +1,6 @@
 package com.capstone.backend.mapper;
 
+import java.util.Comparator;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -7,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import com.capstone.backend.dto.post.PostResponse;
 import com.capstone.backend.model.Post;
+import com.capstone.backend.model.PostMedia;
 
 import lombok.RequiredArgsConstructor;
 
@@ -17,6 +19,10 @@ public class PostResponseMapper implements Function<Post, PostResponse> {
   private final AddressDtoMapper addressDtoMapper;
 
   private final UserResponseMapper userResponseMapper;
+
+  private final PostCatalogDtoMapper postCatalogDtoMapper;
+
+  private final PostMediaDtoMapper postMediaDtoMapper;
 
   @Override
   public PostResponse apply(Post post) {
@@ -37,7 +43,12 @@ public class PostResponseMapper implements Function<Post, PostResponse> {
         post.getExpiredAt(),
         userResponseMapper.apply(post.getUser()),
         addressDtoMapper.apply(post.getAddress()),
-        post.getMedias().stream().map(media -> media.getUrl()).collect(Collectors.toList()));
+        postCatalogDtoMapper.apply(post.getCatalog()),
+        post.getMedias()
+            .stream()
+            .sorted(Comparator.comparingLong(PostMedia::getId))
+            .map(postMediaDtoMapper)
+            .collect(Collectors.toList()));
   }
 
 }

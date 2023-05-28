@@ -15,8 +15,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.capstone.backend.dto.common.ListIdRequest;
 import com.capstone.backend.dto.user.CreateUserRequest;
-import com.capstone.backend.dto.user.ListUserIdRequest;
 import com.capstone.backend.dto.user.ListUserResponse;
 import com.capstone.backend.dto.user.UpdateUserRequest;
 import com.capstone.backend.dto.user.UserResponse;
@@ -70,7 +70,7 @@ public class UserController {
 
   @PatchMapping(value = "/lock")
   @PreAuthorize("hasRole('ROLE_ADMIN')")
-  public ResponseEntity<?> lockUser(@RequestBody ListUserIdRequest ids)
+  public ResponseEntity<?> lockUser(@RequestBody ListIdRequest ids)
       throws ResourceNotFoundException {
     userService.lockUser(ids);
     return new ResponseEntity<>(HttpStatus.OK);
@@ -78,14 +78,14 @@ public class UserController {
 
   @PatchMapping(value = "/unlock")
   @PreAuthorize("hasRole('ROLE_ADMIN')")
-  public ResponseEntity<?> unlockUser(@RequestBody ListUserIdRequest ids)
+  public ResponseEntity<?> unlockUser(@RequestBody ListIdRequest ids)
       throws ResourceNotFoundException {
     userService.unlockUser(ids);
     return new ResponseEntity<>(HttpStatus.OK);
   }
 
   @DeleteMapping(value = "")
-  public ResponseEntity<?> deleteUser(@RequestBody ListUserIdRequest ids)
+  public ResponseEntity<?> deleteUser(@RequestBody ListIdRequest ids)
       throws ResourceNotFoundException {
     userService.deleteUser(ids);
     return new ResponseEntity<>(HttpStatus.OK);
