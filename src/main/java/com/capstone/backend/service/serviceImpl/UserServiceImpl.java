@@ -45,8 +45,35 @@ public class UserServiceImpl implements IUserService {
 
   @Override
   public User findById(long id) throws ResourceNotFoundException {
-    return userRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(
-        messageSource.getMessage("error.resource-not-found", null, Locale.getDefault())));
+    User user = userRepository.findById(id)
+        .orElseThrow(() -> new ResourceNotFoundException(
+            messageSource.getMessage("error.resource-not-found", null, Locale.getDefault())));
+
+    if (user.isDeleted()) {
+      throw new ResourceNotFoundException(
+          messageSource.getMessage("error.resource-not-found", null, Locale.getDefault()));
+    }
+
+    return user;
+  }
+
+  @Override
+  public User save(User user) {
+    return userRepository.save(user);
+  }
+
+  @Override
+  public User findByEmail(String email) throws ResourceNotFoundException {
+    User user = userRepository.findByEmail(email)
+        .orElseThrow(() -> new ResourceNotFoundException(
+            messageSource.getMessage("error.resource-not-found", null, Locale.getDefault())));
+
+    if (user.isDeleted()) {
+      throw new ResourceNotFoundException(
+          messageSource.getMessage("error.resource-not-found", null, Locale.getDefault()));
+    }
+
+    return user;
   }
 
   @Override
@@ -69,25 +96,12 @@ public class UserServiceImpl implements IUserService {
 
   @Override
   public UserResponse getUser(long id) throws ResourceNotFoundException {
-    return userRepository
-        .findById(id)
-        .filter(user -> !user.isDeleted())
-        .map(userResponseMapper)
-        .orElseThrow(() -> new ResourceNotFoundException(messageSource.getMessage(
-            "error.resource-not-found",
-            null,
-            Locale.getDefault())));
+    return userResponseMapper.apply(findById(id));
   }
 
   @Override
   public UserResponse getCurrentUser(String email) throws ResourceNotFoundException {
-    return userRepository
-        .findByEmail(email)
-        .map(userResponseMapper)
-        .orElseThrow(() -> new ResourceNotFoundException(messageSource.getMessage(
-            "error.resource-not-found",
-            null,
-            Locale.getDefault())));
+    return userResponseMapper.apply(findByEmail(email));
   }
 
   @Override
@@ -113,11 +127,7 @@ public class UserServiceImpl implements IUserService {
 
   @Override
   public UserResponse updateUser(long id, UpdateUserRequest userRequest) throws ResourceNotFoundException {
-    User user = userRepository.findById(id)
-        .orElseThrow(() -> new ResourceNotFoundException(messageSource.getMessage(
-            "error.resource-not-found",
-            null,
-            Locale.getDefault())));
+    User user = findById(id);
 
     userRequest.phone_number().ifPresent(phoneNumber -> user.setPhoneNumber(phoneNumber));
     userRequest.username().ifPresent(username -> user.setUsername(username));
@@ -142,11 +152,7 @@ public class UserServiceImpl implements IUserService {
   @Override
   public void lockUser(ListIdRequest ids) throws ResourceNotFoundException {
     for (long id : ids.ids()) {
-      User user = userRepository.findById(id)
-          .orElseThrow(() -> new ResourceNotFoundException(messageSource.getMessage(
-              "error.resource-not-found",
-              null,
-              Locale.getDefault())));
+      User user = findById(id);
       user.setLocked(true);
       userRepository.save(user);
     }
@@ -156,11 +162,7 @@ public class UserServiceImpl implements IUserService {
   public void unlockUser(ListIdRequest ids)
       throws ResourceNotFoundException {
     for (long id : ids.ids()) {
-      User user = userRepository.findById(id)
-          .orElseThrow(() -> new ResourceNotFoundException(messageSource.getMessage(
-              "error.resource-not-found",
-              null,
-              Locale.getDefault())));
+      User user = findById(id);
       user.setLocked(false);
       userRepository.save(user);
     }
@@ -169,11 +171,7 @@ public class UserServiceImpl implements IUserService {
   @Override
   public void deleteUser(ListIdRequest ids) throws ResourceNotFoundException {
     for (long id : ids.ids()) {
-      User user = userRepository.findById(id)
-          .orElseThrow(() -> new ResourceNotFoundException(messageSource.getMessage(
-              "error.resource-not-found",
-              null,
-              Locale.getDefault())));
+      User user = findById(id);
       user.setDeleted(true);
       userRepository.save(user);
     }

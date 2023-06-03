@@ -29,7 +29,7 @@ public class PostCatalogController {
 
   private final IPostCatalogService postCatalogService;
 
-  @GetMapping(value = "")
+  @GetMapping(value = "/public")
   public ResponseEntity<?> getPostCatalogs() {
     List<PostCatalogResponse> catalogs = postCatalogService.getPostCatalogs();
     return new ResponseEntity<>(catalogs, HttpStatus.OK);

@@ -26,6 +26,7 @@ public class PostResponseMapper implements Function<Post, PostResponse> {
 
   @Override
   public PostResponse apply(Post post) {
+    String type = post.getType() != null ? post.getType().name() : null;
     return new PostResponse(
         post.getId(),
         post.getTitle(),
@@ -34,8 +35,9 @@ public class PostResponseMapper implements Function<Post, PostResponse> {
         post.getDeposit(),
         post.getTarget().name(),
         post.getAcreage(),
-        post.getType().name(),
+        type,
         post.getStatus().name(),
+        post.getRefusedReason(),
         post.getCreatedAt(),
         post.getConfirmedAt(),
         post.getDeclinedAt(),

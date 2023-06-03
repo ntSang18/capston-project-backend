@@ -19,6 +19,7 @@ public record PostResponse(
     long acreage,
     String type,
     String status,
+    @JsonProperty("refused_reason") String refusedReason,
     @JsonProperty("created_at") LocalDateTime createdAt,
     @JsonProperty("confirmed") LocalDateTime confirmedAt,
     @JsonProperty("declined_at") LocalDateTime declinedAt,

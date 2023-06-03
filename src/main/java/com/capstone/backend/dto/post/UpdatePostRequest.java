@@ -11,7 +11,7 @@ public record UpdatePostRequest(
     long price,
     long deposit,
     String target,
-    String type,
+    Optional<String> type,
     long acreage,
     String province,
     String district,
@@ -19,7 +19,7 @@ public record UpdatePostRequest(
     String specific_address,
     Optional<List<Long>> removed_media_ids,
     Optional<MultipartFile[]> images,
-    String expired_at,
+    Optional<String> expired_at,
     long catalog_id) {
 
 }

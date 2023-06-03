@@ -18,7 +18,6 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
@@ -106,9 +105,6 @@ public class Post {
   @OneToMany(mappedBy = "post", orphanRemoval = true, cascade = CascadeType.ALL)
   private Set<PostPayment> payments = new HashSet<>();
 
-  @ManyToMany(mappedBy = "savedPosts")
-  private Set<User> users = new HashSet<>();
-
   public Post(
       String title,
       String description,
@@ -155,17 +151,5 @@ public class Post {
 
   public Boolean removePaymentIf(Predicate<? super PostPayment> predicate) {
     return this.payments.removeIf(predicate);
-  }
-
-  public void addUser(User user) {
-    this.users.add(user);
-  }
-
-  public Boolean removeUser(User user) {
-    return this.users.remove(user);
-  }
-
-  public Boolean removeUserIf(Predicate<? super User> predicate) {
-    return this.users.removeIf(predicate);
   }
 }

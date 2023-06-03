@@ -30,17 +30,25 @@ public class PostPayment {
   @Column(nullable = false)
   private LocalDateTime paidAt;
 
+  @Column(nullable = false)
+  private int numberPackage;
+
   @ManyToOne()
   @JoinColumn(nullable = false, name = "post_id")
   private Post post;
+
+  @Column(nullable = false)
+  private boolean isDeleted;
 
   @ManyToOne()
   @JoinColumn(nullable = false, name = "package_price_id")
   private PackagePrice packagePrice;
 
-  public PostPayment(Post post, PackagePrice packagePrice) {
+  public PostPayment(int numberPackage, Post post, PackagePrice packagePrice) {
+    this.numberPackage = numberPackage;
     this.post = post;
     this.packagePrice = packagePrice;
     this.paidAt = LocalDateTime.now();
+    this.isDeleted = false;
   }
 }

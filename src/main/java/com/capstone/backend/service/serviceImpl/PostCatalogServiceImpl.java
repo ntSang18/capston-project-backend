@@ -31,9 +31,17 @@ public class PostCatalogServiceImpl implements IPostCatalogService {
 
   @Override
   public PostCatalog findById(long id) throws ResourceNotFoundException {
-    return postCatalogRepository.findById(id)
+    PostCatalog catalog = postCatalogRepository.findById(id)
         .orElseThrow(() -> new ResourceNotFoundException(
             messageSource.getMessage("error.resource-not-found", null, Locale.getDefault())));
+
+    if (catalog.isDeleted()) {
+      throw new ResourceNotFoundException(
+          messageSource.getMessage("error.resource-not-found", null, Locale.getDefault()));
+    }
+
+    return catalog;
+
   }
 
   @Override
@@ -60,10 +68,7 @@ public class PostCatalogServiceImpl implements IPostCatalogService {
   @Override
   public PostCatalogResponse updatePostCatalog(long id, PostCatalogRequest request)
       throws ResourceNotFoundException, ResourceAlreadyExists {
-    PostCatalog catalog = postCatalogRepository
-        .findById(id)
-        .orElseThrow(() -> new ResourceNotFoundException(
-            messageSource.getMessage("error.resource-not-found", null, Locale.getDefault())));
+    PostCatalog catalog = findById(id);
 
     Optional<PostCatalog> optionalCheckCatalog = postCatalogRepository.findByName(request.name());
     if (optionalCheckCatalog.isPresent() && optionalCheckCatalog.get().getId() != catalog.getId()) {
@@ -78,9 +83,7 @@ public class PostCatalogServiceImpl implements IPostCatalogService {
 
   @Override
   public void deletePostCatalog(long id) throws ResourceNotFoundException {
-    PostCatalog catalog = postCatalogRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(
-        messageSource.getMessage("error.resource-not-found", null, Locale.getDefault())));
-
+    PostCatalog catalog = findById(id);
     catalog.setDeleted(true);
     postCatalogRepository.save(catalog);
   }

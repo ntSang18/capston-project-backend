@@ -13,11 +13,14 @@ import com.capstone.backend.dto.exception.ExceptionResponse;
 import com.capstone.backend.exception.AccountDisableException;
 import com.capstone.backend.exception.AccountLockedException;
 import com.capstone.backend.exception.ConfirmedException;
+import com.capstone.backend.exception.DifferentTypeException;
 import com.capstone.backend.exception.ResourceAlreadyExists;
 import com.capstone.backend.exception.ExpiredTokenException;
+import com.capstone.backend.exception.InsufficientBalanceException;
 import com.capstone.backend.exception.InvalidCredentialsException;
 import com.capstone.backend.exception.ResourceNotFoundException;
 import com.capstone.backend.exception.UnauthenticatedException;
+import com.capstone.backend.exception.UnqualifiedException;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -71,6 +74,21 @@ public class ApplicationExceptionHandler {
   @ExceptionHandler(value = { AccountLockedException.class })
   public ResponseEntity<?> handleException(AccountLockedException e) {
     return generateResponse(e, HttpStatus.LOCKED);
+  }
+
+  @ExceptionHandler(value = { InsufficientBalanceException.class })
+  public ResponseEntity<?> handleException(InsufficientBalanceException e) {
+    return generateResponse(e, HttpStatus.PAYMENT_REQUIRED);
+  }
+
+  @ExceptionHandler(value = { DifferentTypeException.class })
+  public ResponseEntity<?> handleException(DifferentTypeException e) {
+    return generateResponse(e, HttpStatus.BAD_REQUEST);
+  }
+
+  @ExceptionHandler(value = { UnqualifiedException.class })
+  public ResponseEntity<?> handleException(UnqualifiedException e) {
+    return generateResponse(e, HttpStatus.BAD_REQUEST);
   }
 
   private ResponseEntity<?> generateResponse(Exception e, HttpStatus status) {

@@ -13,6 +13,10 @@ public interface IUserService {
 
   User findById(long id) throws ResourceNotFoundException;
 
+  User save(User user);
+
+  User findByEmail(String email) throws ResourceNotFoundException;
+
   ListUserResponse getUsers();
 
   UserResponse getUser(long id) throws ResourceNotFoundException;

@@ -33,8 +33,11 @@ public class PackagePrice {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private long id;
 
-  @Column(nullable = false, unique = true)
+  @Column(nullable = false)
   private String name;
+
+  @Column(nullable = false)
+  private long price;
 
   @Column(nullable = false)
   private int numberOfDays;
@@ -43,13 +46,18 @@ public class PackagePrice {
   @Enumerated(EnumType.STRING)
   private PostTypes type;
 
+  @Column(nullable = false)
+  private boolean isDeleted;
+
   @OneToMany(mappedBy = "packagePrice", orphanRemoval = true, cascade = CascadeType.ALL)
   private Set<PostPayment> payments = new HashSet<>();
 
-  public PackagePrice(String name, int numberOfDays, PostTypes type) {
+  public PackagePrice(String name, long price, int numberOfDays, PostTypes type) {
     this.name = name;
+    this.price = price;
     this.numberOfDays = numberOfDays;
     this.type = type;
+    this.isDeleted = false;
   }
 
   public void addPostPayment(PostPayment postPayment) {
