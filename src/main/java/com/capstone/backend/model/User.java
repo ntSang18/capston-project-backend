@@ -85,6 +85,9 @@ public class User {
   @OneToMany(mappedBy = "user", orphanRemoval = true, cascade = CascadeType.ALL)
   private Set<Post> posts = new HashSet<>();
 
+  @OneToMany(mappedBy = "user", orphanRemoval = true, cascade = CascadeType.ALL)
+  private Set<Transaction> transactions = new HashSet<>();
+
   public User(String email, String password, String phoneNumber, String username, Roles role) {
     this.email = email;
     this.password = password;
@@ -124,5 +127,17 @@ public class User {
 
   public Boolean removePostIf(Predicate<? super Post> predicate) {
     return this.posts.removeIf(predicate);
+  }
+
+  public void addTransaction(Transaction trans) {
+    this.transactions.add(trans);
+  }
+
+  public Boolean removeTransaction(Transaction trans) {
+    return this.transactions.remove(trans);
+  }
+
+  public Boolean removeTransactionIf(Predicate<? super Transaction> predicate) {
+    return this.transactions.removeIf(predicate);
   }
 }
