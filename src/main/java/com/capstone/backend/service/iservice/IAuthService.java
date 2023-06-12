@@ -3,12 +3,12 @@ package com.capstone.backend.service.iservice;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 
-import com.capstone.backend.dto.AuthInfo;
-import com.capstone.backend.dto.ChangePasswordRequest;
-import com.capstone.backend.dto.LoginRequest;
-import com.capstone.backend.dto.RegisterRequest;
+import com.capstone.backend.dto.auth.AuthInfo;
+import com.capstone.backend.dto.auth.ChangePasswordRequest;
+import com.capstone.backend.dto.auth.LoginRequest;
+import com.capstone.backend.dto.auth.RegisterRequest;
 import com.capstone.backend.exception.ConfirmedException;
-import com.capstone.backend.exception.EmailTakenException;
+import com.capstone.backend.exception.ResourceAlreadyExists;
 import com.capstone.backend.exception.ExpiredTokenException;
 import com.capstone.backend.exception.InvalidCredentialsException;
 import com.capstone.backend.exception.ResourceNotFoundException;
@@ -21,7 +21,7 @@ import jakarta.servlet.http.HttpServletResponse;
 
 public interface IAuthService {
 
-  void register(RegisterRequest req) throws EmailTakenException;
+  void register(RegisterRequest req) throws ResourceAlreadyExists;
 
   void confirm(String token) throws ResourceNotFoundException, ExpiredTokenException, ConfirmedException;
 
@@ -31,7 +31,7 @@ public interface IAuthService {
       throws AccountDisableException, InvalidCredentialsException, AccountLockedException;
 
   AuthInfo googleOAuth2Login(String idTokenString)
-      throws InvalidCredentialsException, EmailTakenException, GeneralSecurityException, IOException;
+      throws InvalidCredentialsException, ResourceAlreadyExists, GeneralSecurityException, IOException;
 
   AuthInfo refreshToken(String refresh_token) throws UnauthenticatedException;
 

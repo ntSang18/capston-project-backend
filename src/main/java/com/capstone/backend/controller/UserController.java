@@ -15,12 +15,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.capstone.backend.dto.CreateUserRequest;
-import com.capstone.backend.dto.ListUserResponse;
-import com.capstone.backend.dto.ListUserIdRequest;
-import com.capstone.backend.dto.UpdateUserRequest;
-import com.capstone.backend.dto.UserResponse;
-import com.capstone.backend.exception.EmailTakenException;
+import com.capstone.backend.dto.common.ListIdRequest;
+import com.capstone.backend.dto.user.CreateUserRequest;
+import com.capstone.backend.dto.user.ListUserResponse;
+import com.capstone.backend.dto.user.UpdateUserRequest;
+import com.capstone.backend.dto.user.UserResponse;
+import com.capstone.backend.exception.ResourceAlreadyExists;
 import com.capstone.backend.exception.ResourceNotFoundException;
 import com.capstone.backend.model.UserDetailsImpl;
 import com.capstone.backend.service.iservice.IUserService;
@@ -56,21 +56,21 @@ public class UserController {
   @PostMapping(value = "")
   @PreAuthorize("hasRole('ROLE_ADMIN')")
   public ResponseEntity<?> createUser(@RequestBody CreateUserRequest userRequest)
-      throws EmailTakenException {
+      throws ResourceAlreadyExists {
     UserResponse userResponse = userService.createUser(userRequest);
     return new ResponseEntity<>(userResponse, HttpStatus.OK);
   }
 
-  @PatchMapping(value = "", consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
-  public ResponseEntity<?> updateUser(@ModelAttribute UpdateUserRequest userRequest)
+  @PatchMapping(value = "/{id}", consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
+  public ResponseEntity<?> updateUser(@PathVariable long id, @ModelAttribute UpdateUserRequest userRequest)
       throws ResourceNotFoundException {
-    UserResponse userResponse = userService.updateUser(userRequest);
+    UserResponse userResponse = userService.updateUser(id, userRequest);
     return new ResponseEntity<>(userResponse, HttpStatus.OK);
   }
 
   @PatchMapping(value = "/lock")
   @PreAuthorize("hasRole('ROLE_ADMIN')")
-  public ResponseEntity<?> lockUser(@RequestBody ListUserIdRequest ids)
+  public ResponseEntity<?> lockUser(@RequestBody ListIdRequest ids)
       throws ResourceNotFoundException {
     userService.lockUser(ids);
     return new ResponseEntity<>(HttpStatus.OK);
@@ -78,14 +78,14 @@ public class UserController {
 
   @PatchMapping(value = "/unlock")
   @PreAuthorize("hasRole('ROLE_ADMIN')")
-  public ResponseEntity<?> unlockUser(@RequestBody ListUserIdRequest ids)
+  public ResponseEntity<?> unlockUser(@RequestBody ListIdRequest ids)
       throws ResourceNotFoundException {
     userService.unlockUser(ids);
     return new ResponseEntity<>(HttpStatus.OK);
   }
 
   @DeleteMapping(value = "")
-  public ResponseEntity<?> deleteUser(@RequestBody ListUserIdRequest ids)
+  public ResponseEntity<?> deleteUser(@RequestBody ListIdRequest ids)
       throws ResourceNotFoundException {
     userService.deleteUser(ids);
     return new ResponseEntity<>(HttpStatus.OK);

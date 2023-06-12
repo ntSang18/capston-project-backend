@@ -4,11 +4,16 @@ import java.util.function.Function;
 
 import org.springframework.stereotype.Service;
 
-import com.capstone.backend.dto.UserResponse;
+import com.capstone.backend.dto.user.UserResponse;
 import com.capstone.backend.model.User;
 
+import lombok.RequiredArgsConstructor;
+
 @Service
+@RequiredArgsConstructor
 public class UserResponseMapper implements Function<User, UserResponse> {
+
+  private final AddressDtoMapper addressDtoMapper;
 
   @Override
   public UserResponse apply(User user) {
@@ -24,10 +29,7 @@ public class UserResponseMapper implements Function<User, UserResponse> {
         user.isLocked(),
         user.getCreatedAt(),
         user.getUpdatedAt(),
-        user.getAddress().getProvince(),
-        user.getAddress().getProvince(),
-        user.getAddress().getWard(),
-        user.getAddress().getSpecificAddress());
+        addressDtoMapper.apply(user.getAddress()));
   }
 
 }

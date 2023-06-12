@@ -14,21 +14,20 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.capstone.backend.dto.AuthInfo;
-import com.capstone.backend.dto.ChangePasswordRequest;
-import com.capstone.backend.dto.LoginRequest;
-import com.capstone.backend.dto.MailInfoRequest;
-import com.capstone.backend.dto.MessageResponse;
-import com.capstone.backend.dto.Oauth2Request;
-import com.capstone.backend.dto.RegisterRequest;
-import com.capstone.backend.dto.ResetRequest;
-import com.capstone.backend.dto.TokenResponse;
+import com.capstone.backend.dto.auth.AuthInfo;
+import com.capstone.backend.dto.auth.ChangePasswordRequest;
+import com.capstone.backend.dto.auth.LoginRequest;
+import com.capstone.backend.dto.auth.MailInfoRequest;
+import com.capstone.backend.dto.auth.Oauth2Request;
+import com.capstone.backend.dto.auth.RegisterRequest;
+import com.capstone.backend.dto.auth.ResetRequest;
+import com.capstone.backend.dto.auth.TokenResponse;
 import com.capstone.backend.exception.AccountDisableException;
 import com.capstone.backend.exception.AccountLockedException;
 import com.capstone.backend.exception.ConfirmedException;
-import com.capstone.backend.exception.EmailTakenException;
 import com.capstone.backend.exception.ExpiredTokenException;
 import com.capstone.backend.exception.InvalidCredentialsException;
+import com.capstone.backend.exception.ResourceAlreadyExists;
 import com.capstone.backend.exception.ResourceNotFoundException;
 import com.capstone.backend.exception.UnauthenticatedException;
 import com.capstone.backend.model.UserDetailsImpl;
@@ -48,11 +47,9 @@ public class AuthController {
 
   @PostMapping(value = "/register")
   public ResponseEntity<?> register(@RequestBody RegisterRequest req)
-      throws EmailTakenException {
+      throws ResourceAlreadyExists {
     authService.register(req);
-    return new ResponseEntity<>(
-        new MessageResponse("Check your email for activate"),
-        HttpStatus.OK);
+    return new ResponseEntity<>(HttpStatus.OK);
   }
 
   @GetMapping(value = "/confirm/{token}")
@@ -61,9 +58,7 @@ public class AuthController {
       ExpiredTokenException,
       ConfirmedException {
     authService.confirm(token);
-    return new ResponseEntity<>(
-        new MessageResponse("Register successfully!"),
-        HttpStatus.OK);
+    return new ResponseEntity<>("Active account success!", HttpStatus.OK);
   }
 
   @PostMapping(value = "/reconfirm")
@@ -72,7 +67,7 @@ public class AuthController {
       ConfirmedException {
     authService.reconfirm(req.email());
     return new ResponseEntity<>(
-        new MessageResponse("Check your email for active"),
+
         HttpStatus.OK);
   }
 
@@ -92,7 +87,7 @@ public class AuthController {
   @PostMapping(value = "/google-oauth2")
   public ResponseEntity<?> googleOauth2(@RequestBody Oauth2Request req, HttpServletResponse resp)
       throws InvalidCredentialsException,
-      EmailTakenException,
+      ResourceAlreadyExists,
       GeneralSecurityException,
       IOException {
     AuthInfo res = authService.googleOAuth2Login(req.idToken());
@@ -117,7 +112,6 @@ public class AuthController {
   public ResponseEntity<?> logout(HttpServletRequest request, HttpServletResponse response) {
     authService.logout(request, response);
     return new ResponseEntity<>(
-        new MessageResponse("Logout success!"),
         HttpStatus.OK);
   }
 
@@ -127,7 +121,6 @@ public class AuthController {
       AccountDisableException {
     authService.forgot(req.email());
     return new ResponseEntity<>(
-        new MessageResponse("Check your email to reset password"),
         HttpStatus.OK);
   }
 
@@ -137,7 +130,6 @@ public class AuthController {
       InvalidCredentialsException {
     authService.reset(req.token(), req.password(), req.confirmPassword());
     return new ResponseEntity<>(
-        new MessageResponse("Password has been changed"),
         HttpStatus.OK);
   }
 
@@ -148,7 +140,6 @@ public class AuthController {
       throws ResourceNotFoundException, InvalidCredentialsException {
     authService.change(user.getUsername(), request);
     return new ResponseEntity<>(
-        new MessageResponse("Password has been change"),
         HttpStatus.OK);
   }
 }
