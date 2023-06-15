@@ -73,7 +73,8 @@ public class PostServiceImpl implements IPostService {
   @Override
   public List<PostResponse> getPosts() {
     return postRepository.findAll()
-        .stream().filter(post -> !post.isDeleted())
+        .stream()
+        .filter(post -> !post.isDeleted())
         .sorted(Comparator.comparingLong(Post::getId))
         .map(postResponseMapper)
         .collect(Collectors.toList());
