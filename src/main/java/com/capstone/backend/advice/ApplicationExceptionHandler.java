@@ -13,6 +13,7 @@ import com.capstone.backend.dto.exception.ExceptionResponse;
 import com.capstone.backend.exception.AccountDisableException;
 import com.capstone.backend.exception.AccountLockedException;
 import com.capstone.backend.exception.ConfirmedException;
+import com.capstone.backend.exception.ConflictTimeException;
 import com.capstone.backend.exception.DifferentTypeException;
 import com.capstone.backend.exception.ResourceAlreadyExists;
 import com.capstone.backend.exception.ExpiredTokenException;
@@ -89,6 +90,11 @@ public class ApplicationExceptionHandler {
   @ExceptionHandler(value = { UnqualifiedException.class })
   public ResponseEntity<?> handleException(UnqualifiedException e) {
     return generateResponse(e, HttpStatus.BAD_REQUEST);
+  }
+
+  @ExceptionHandler(value = { ConflictTimeException.class })
+  public ResponseEntity<?> handleException(ConflictTimeException e) {
+    return generateResponse(e, HttpStatus.CONFLICT);
   }
 
   private ResponseEntity<?> generateResponse(Exception e, HttpStatus status) {

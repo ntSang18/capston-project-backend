@@ -3,6 +3,7 @@ package com.capstone.backend.service.serviceImpl;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.context.MessageSource;
@@ -13,9 +14,12 @@ import com.capstone.backend.dto.transaction.TransactionRequest;
 import com.capstone.backend.dto.transaction.TransactionResponse;
 import com.capstone.backend.exception.ResourceNotFoundException;
 import com.capstone.backend.mapper.TransactionResponseMapper;
+import com.capstone.backend.model.Promotion;
+import com.capstone.backend.model.PromotionChild;
 import com.capstone.backend.model.Transaction;
 import com.capstone.backend.model.User;
 import com.capstone.backend.repository.TransactionRepository;
+import com.capstone.backend.service.iservice.IPromotionService;
 import com.capstone.backend.service.iservice.ITransactionService;
 import com.capstone.backend.service.iservice.IUserService;
 
@@ -30,6 +34,8 @@ public class TransactionService implements ITransactionService {
   private final IUserService userService;
 
   private final TransactionResponseMapper transactionResponseMapper;
+
+  private final IPromotionService promotionService;
 
   private final MessageSource messageSource;
 
@@ -85,17 +91,22 @@ public class TransactionService implements ITransactionService {
     User user = userService.findByEmail(email);
     long actualMoney = 0;
     double discount = 0;
-    if (request.money() >= 50000 && request.money() < 1000000) {
-      discount = 0.1;
-      actualMoney = (long) (request.money() * 1.1);
-      user.setBalance(user.getBalance() + actualMoney);
-    } else if (request.money() >= 1000000 && request.money() < 2000000) {
-      discount = 0.2;
-      actualMoney = (long) (request.money() * 1.2);
-      user.setBalance(user.getBalance() + actualMoney);
-    } else {
-      discount = 0.25;
-      actualMoney = (long) (request.money() * 1.25);
+
+    Optional<Promotion> optionalPromotion = promotionService.getCurrentPromotion();
+    boolean isDiscounted = false;
+    if (optionalPromotion.isPresent()) {
+      for (PromotionChild child : optionalPromotion.get().getChilds()) {
+        if (request.money() >= child.getStartRange() && request.money() < child.getEndRange()) {
+          discount = (double) child.getPercent() / 100;
+          actualMoney = (long) (request.money() * (1 + discount));
+          user.setBalance(user.getBalance() + actualMoney);
+          isDiscounted = true;
+          break;
+        }
+      }
+    }
+    if (!isDiscounted) {
+      actualMoney = request.money();
       user.setBalance(user.getBalance() + actualMoney);
     }
     userService.save(user);
