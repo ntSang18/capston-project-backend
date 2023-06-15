@@ -1,0 +1,46 @@
+spring:
+  datasource:
+    username: postgres
+    url: jdbc:postgresql://localhost:5432/capstone
+    password: 123456
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        "[format_sql]": true
+    hibernate:
+      ddl-auto: update
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: noreply.nts.6325@gmail.com
+    password: jpltfwgpvgqvrjuw
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+application:
+  security:
+    access-token-secret: YWNjZXNzLXRva2VuLXNlY3JldC1mb3ItYXV0aC1kZW1vLXByb2plY3Q=
+    refresh-token-secret: cmVmZXNoLXRva2VuLXNlY3JldC1mb3ItYXV0aC1kZW1vLXByb2plY3Q=
+    google-client-id: 87142437898-61a2n429e1qsvbg0hsfb51gnunnqga9h.apps.googleusercontent.com
+    allowed-origins: http://localhost:3000,http://127.0.0.1:3000,http://10.0.195.239:3000/
+  frontend:
+    default-url: http://localhost:3000
+  backend:
+    default-url: http://localhost:8080
+  server:
+    time-zone: Asia/Ho_Chi_Minh
+  storage:
+    bucket: thanhsang_capstone
+    baseUrl: https://storage.googleapis.com/
+
+server:
+  servlet:
+    session:
+      cookie:
+        path: /api
+        http-only: true
