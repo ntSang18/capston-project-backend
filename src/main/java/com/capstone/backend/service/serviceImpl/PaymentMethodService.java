@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.capstone.backend.config.VNPayConfig;
@@ -26,6 +27,10 @@ import com.mservice.shared.sharedmodels.Environment.ProcessType;
 
 @Service
 public class PaymentMethodService implements IPaymentMethodService {
+
+  @Value("${application.frontend.default-url}")
+  private String frontendUrl;
+  public String vnp_Returnurl = frontendUrl + "/transaction/vnpay";
 
   @Override
   public PaymentMethodResponse vnpayMethod(PaymentMethodRequest request) throws UnsupportedEncodingException {
@@ -43,7 +48,7 @@ public class PaymentMethodService implements IPaymentMethodService {
     vnp_Params.put("vnp_TxnRef", vnp_TxnRef);
     vnp_Params.put("vnp_OrderInfo", "Thanh toan don hang:" + vnp_TxnRef);
     vnp_Params.put("vnp_Locale", "vn");
-    vnp_Params.put("vnp_ReturnUrl", VNPayConfig.vnp_Returnurl);
+    vnp_Params.put("vnp_ReturnUrl", vnp_Returnurl);
 
     Calendar cld = Calendar.getInstance(TimeZone.getTimeZone("Etc/GMT+7"));
     SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmss");
