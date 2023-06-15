@@ -12,8 +12,8 @@ import javax.crypto.spec.SecretKeySpec;
 import jakarta.servlet.http.HttpServletRequest;
 
 public class VNPayConfig {
+
   public static String vnp_PayUrl = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html";
-  public static String vnp_Returnurl = "http://localhost:3000/transaction/vnpay";
   public static String vnp_Version = "2.1.0";
   public static String vnp_Command = "pay";
   public static String vnp_TmnCode = "PDSTHJKD";
