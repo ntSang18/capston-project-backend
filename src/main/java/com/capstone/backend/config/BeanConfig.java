@@ -2,6 +2,8 @@ package com.capstone.backend.config;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
@@ -15,6 +17,7 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
 
+import com.cloudinary.Cloudinary;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.gson.GsonFactory;
@@ -28,6 +31,24 @@ public class BeanConfig {
 
   @Value("${application.security.allowed-origins}")
   private String allowedOrigins;
+
+  @Value("${application.cloudinary.cloud_name}")
+  private String cloudName;
+
+  @Value("${application.cloudinary.api_key}")
+  private String apiKey;
+
+  @Value("${application.cloudinary.api_secret}")
+  private String apiSecret;
+
+  @Bean
+  public Cloudinary cloudinary() {
+    Map<String, String> config = new HashMap<>();
+    config.put("cloud_name", cloudName);
+    config.put("api_key", apiKey);
+    config.put("api_secret", apiSecret);
+    return new Cloudinary(config);
+  }
 
   @Bean
   public TaskExecutor taskExecutor() {

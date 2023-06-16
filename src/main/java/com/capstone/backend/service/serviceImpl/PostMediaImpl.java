@@ -27,11 +27,11 @@ public class PostMediaImpl implements IPostMediaService {
 
   @Override
   public PostMedia save(PostMedia media, MultipartFile file) {
-    PostMedia initialMedia = postMediaRepository.save(media);
-    final String folder = "post_medias";
-    Optional<String> optionalUrl = fileService.store(folder, initialMedia.getId(), file);
-    optionalUrl.ifPresent(url -> initialMedia.setUrl(url));
-    return postMediaRepository.save(initialMedia);
+    // PostMedia initialMedia = postMediaRepository.save(media);
+    // final String folder = "post_medias";
+    Optional<String> optionalUrl = fileService.cloudinaryStore(file);
+    optionalUrl.ifPresent(url -> media.setUrl(url));
+    return postMediaRepository.save(media);
   }
 
   @Override
