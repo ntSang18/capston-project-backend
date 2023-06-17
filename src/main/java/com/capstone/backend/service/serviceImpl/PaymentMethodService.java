@@ -30,7 +30,6 @@ public class PaymentMethodService implements IPaymentMethodService {
 
   @Value("${application.frontend.default-url}")
   private String frontendUrl;
-  public String vnp_Returnurl = frontendUrl + "/transaction/vnpay";
 
   @Override
   public PaymentMethodResponse vnpayMethod(PaymentMethodRequest request) throws UnsupportedEncodingException {
@@ -48,7 +47,7 @@ public class PaymentMethodService implements IPaymentMethodService {
     vnp_Params.put("vnp_TxnRef", vnp_TxnRef);
     vnp_Params.put("vnp_OrderInfo", "Thanh toan don hang:" + vnp_TxnRef);
     vnp_Params.put("vnp_Locale", "vn");
-    vnp_Params.put("vnp_ReturnUrl", vnp_Returnurl);
+    vnp_Params.put("vnp_ReturnUrl", frontendUrl + "/transaction/vnpay");
 
     Calendar cld = Calendar.getInstance(TimeZone.getTimeZone("Etc/GMT+7"));
     SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmss");
