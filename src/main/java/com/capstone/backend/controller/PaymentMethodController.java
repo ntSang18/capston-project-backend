@@ -13,6 +13,7 @@ import com.capstone.backend.dto.paymentMethod.PaymentMethodRequest;
 import com.capstone.backend.dto.paymentMethod.PaymentMethodResponse;
 import com.capstone.backend.service.iservice.IPaymentMethodService;
 
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -29,8 +30,10 @@ public class PaymentMethodController {
   }
 
   @PostMapping(value = "vnpay")
-  public ResponseEntity<?> vnpayMethod(@RequestBody PaymentMethodRequest request) throws UnsupportedEncodingException {
-    PaymentMethodResponse response = paymentMethodService.vnpayMethod(request);
+  public ResponseEntity<?> vnpayMethod(
+      @RequestBody PaymentMethodRequest request,
+      HttpServletRequest req) throws UnsupportedEncodingException {
+    PaymentMethodResponse response = paymentMethodService.vnpayMethod(req, request);
     return new ResponseEntity<>(response, HttpStatus.OK);
   }
 }

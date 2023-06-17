@@ -25,15 +25,17 @@ import com.mservice.allinone.processor.allinone.CaptureMoMo;
 import com.mservice.shared.sharedmodels.Environment;
 import com.mservice.shared.sharedmodels.Environment.ProcessType;
 
+import jakarta.servlet.http.HttpServletRequest;
+
 @Service
 public class PaymentMethodService implements IPaymentMethodService {
 
   @Value("${application.frontend.default-url}")
   private String frontendUrl;
-  public String vnp_Returnurl = frontendUrl + "/transaction/vnpay";
 
   @Override
-  public PaymentMethodResponse vnpayMethod(PaymentMethodRequest request) throws UnsupportedEncodingException {
+  public PaymentMethodResponse vnpayMethod(HttpServletRequest req, PaymentMethodRequest request)
+      throws UnsupportedEncodingException {
     long amount = request.amount() * 100;
     String vnp_TxnRef = VNPayConfig.getRandomNumber(8);
     String vnp_TmnCode = VNPayConfig.vnp_TmnCode;
@@ -44,11 +46,12 @@ public class PaymentMethodService implements IPaymentMethodService {
     vnp_Params.put("vnp_TmnCode", vnp_TmnCode);
     vnp_Params.put("vnp_Amount", String.valueOf(amount));
     vnp_Params.put("vnp_CurrCode", "VND");
+    vnp_Params.put("vnp_IpAddr", VNPayConfig.getIpAddress(req));
     vnp_Params.put("vnp_BankCode", "NCB");
     vnp_Params.put("vnp_TxnRef", vnp_TxnRef);
     vnp_Params.put("vnp_OrderInfo", "Thanh toan don hang:" + vnp_TxnRef);
     vnp_Params.put("vnp_Locale", "vn");
-    vnp_Params.put("vnp_ReturnUrl", vnp_Returnurl);
+    vnp_Params.put("vnp_ReturnUrl", frontendUrl + "/transaction/vnpay");
 
     Calendar cld = Calendar.getInstance(TimeZone.getTimeZone("Etc/GMT+7"));
     SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmss");
