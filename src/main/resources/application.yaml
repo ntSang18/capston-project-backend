@@ -27,11 +27,11 @@ application:
     access-token-secret: YWNjZXNzLXRva2VuLXNlY3JldC1mb3ItYXV0aC1kZW1vLXByb2plY3Q=
     refresh-token-secret: cmVmZXNoLXRva2VuLXNlY3JldC1mb3ItYXV0aC1kZW1vLXByb2plY3Q=
     google-client-id: 87142437898-61a2n429e1qsvbg0hsfb51gnunnqga9h.apps.googleusercontent.com
-    allowed-origins: http://localhost:3000,http://127.0.0.1:3000,http://10.0.195.239:3000/
+    allowed-origins: http://34.143.156.133/
   frontend:
-    default-url: http://localhost:3000
+    default-url: http://34.143.156.133
   backend:
-    default-url: http://localhost:8080
+    default-url: http://34.126.81.164
   server:
     time-zone: Asia/Ho_Chi_Minh
   storage:

@@ -134,9 +134,8 @@ public class UserServiceImpl implements IUserService {
     userRequest.facebook().ifPresent(facebook -> user.setFacebook(facebook));
     userRequest.role().ifPresent(role -> user.setRole(Roles.valueOf(role)));
 
-    String folder = "users";
     userRequest.image().ifPresent(
-        image -> fileService.store(folder, user.getId(), image)
+        image -> fileService.cloudinaryStore(image)
             .ifPresent(imageUrl -> user.setImageUrl(imageUrl)));
 
     Address address = user.getAddress();
