@@ -36,6 +36,7 @@ public class EmailServiceImpl implements IEmailService {
   }
 
   @Override
+  @Async
   public void sendReset(String to, String username, String link) {
     try {
       String email = buildResetEmail(username, link);

@@ -41,6 +41,10 @@ application:
     cloud_name: dznf6ix11
     api_key: 382612891259988
     api_secret: MFL0NatBuBJcTKacuydVjbOQubI
+  paypal:
+    mode: sandbox
+    client_id: AS7VDTJ2LbEUARPwA2mMfJ9xEM0yzoNUWTXHdpoMqKQw1In8L9PbLvjEV7FNP3qptnuKg8J4X2kO6Flw
+    secret: ECa9wNBSos51E43LInKyTrgu1snlq_6q06b8bmc__QUMl7S-YvHgQ21dVInVq5oFtcPtZBTYBm79lFf1
 
 server:
   servlet:
