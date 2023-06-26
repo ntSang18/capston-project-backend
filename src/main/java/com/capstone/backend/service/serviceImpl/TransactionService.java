@@ -10,6 +10,7 @@ import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Service;
 
 import com.capstone.backend.constant.PaymentMethods;
+import com.capstone.backend.dto.transaction.PaypalExecuteRequest;
 import com.capstone.backend.dto.transaction.TransactionRequest;
 import com.capstone.backend.dto.transaction.TransactionResponse;
 import com.capstone.backend.exception.ResourceNotFoundException;
@@ -22,6 +23,10 @@ import com.capstone.backend.repository.TransactionRepository;
 import com.capstone.backend.service.iservice.IPromotionService;
 import com.capstone.backend.service.iservice.ITransactionService;
 import com.capstone.backend.service.iservice.IUserService;
+import com.paypal.api.payments.Payment;
+import com.paypal.api.payments.PaymentExecution;
+import com.paypal.base.rest.APIContext;
+import com.paypal.base.rest.PayPalRESTException;
 
 import lombok.RequiredArgsConstructor;
 
@@ -38,6 +43,8 @@ public class TransactionService implements ITransactionService {
   private final IPromotionService promotionService;
 
   private final MessageSource messageSource;
+
+  private final APIContext apiContext;
 
   @Override
   public Transaction findById(long id) throws ResourceNotFoundException {
@@ -118,6 +125,25 @@ public class TransactionService implements ITransactionService {
         user);
 
     return transactionResponseMapper.apply(transactionRepository.save(transaction));
+  }
+
+  @Override
+  public TransactionResponse executePaypal(String email, PaypalExecuteRequest request)
+      throws PayPalRESTException, ResourceNotFoundException {
+    Payment payment = new Payment();
+    payment.setId(request.paymentId());
+    PaymentExecution paymentExecute = new PaymentExecution();
+    paymentExecute.setPayerId(request.payerId());
+    Payment resultPayment = payment.execute(apiContext, paymentExecute);
+    if (resultPayment.getState().equals("approved")) {
+      for (com.paypal.api.payments.Transaction transaction : resultPayment.getTransactions()) {
+        long money = (long) (Double.parseDouble(transaction.getAmount().getTotal()) * 23000);
+        String method = PaymentMethods.PAYPAL.name();
+        TransactionRequest req = new TransactionRequest(money, method);
+        return createTransaction(email, req);
+      }
+    }
+    return null;
   }
 
   @Override

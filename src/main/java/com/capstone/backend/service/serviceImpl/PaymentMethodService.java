@@ -24,14 +24,26 @@ import com.mservice.allinone.models.CaptureMoMoResponse;
 import com.mservice.allinone.processor.allinone.CaptureMoMo;
 import com.mservice.shared.sharedmodels.Environment;
 import com.mservice.shared.sharedmodels.Environment.ProcessType;
+import com.paypal.api.payments.Amount;
+import com.paypal.api.payments.Links;
+import com.paypal.api.payments.Payer;
+import com.paypal.api.payments.Payment;
+import com.paypal.api.payments.RedirectUrls;
+import com.paypal.api.payments.Transaction;
+import com.paypal.base.rest.APIContext;
+import com.paypal.base.rest.PayPalRESTException;
 
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.RequiredArgsConstructor;
 
 @Service
+@RequiredArgsConstructor
 public class PaymentMethodService implements IPaymentMethodService {
 
   @Value("${application.frontend.default-url}")
   private String frontendUrl;
+
+  private final APIContext apiContext;
 
   @Override
   public PaymentMethodResponse vnpayMethod(HttpServletRequest req, PaymentMethodRequest request)
@@ -112,6 +124,45 @@ public class PaymentMethodService implements IPaymentMethodService {
         "");
 
     return new PaymentMethodResponse(captureMoMoResponse.getPayUrl());
+  }
+
+  @Override
+  public PaymentMethodResponse paypalMethod(PaymentMethodRequest request) throws PayPalRESTException {
+    String currency = "USD";
+    String method = "paypal";
+    String intent = "sale";
+    String description = "Payment";
+    double total = (double) request.amount() / 23000;
+
+    Amount amount = new Amount();
+    amount.setCurrency(currency);
+    amount.setTotal(String.format("%.2f", total));
+
+    Transaction transaction = new Transaction();
+    transaction.setDescription(description);
+    transaction.setAmount(amount);
+
+    List<Transaction> transactions = new ArrayList<>();
+    transactions.add(transaction);
+
+    Payer payer = new Payer();
+    payer.setPaymentMethod(method.toString());
+
+    Payment payment = new Payment();
+    payment.setIntent(intent.toString());
+    payment.setPayer(payer);
+    payment.setTransactions(transactions);
+    RedirectUrls redirectUrls = new RedirectUrls();
+    redirectUrls.setCancelUrl(frontendUrl + "/transaction/cancel");
+    redirectUrls.setReturnUrl(frontendUrl + "/transaction/paypal");
+    payment.setRedirectUrls(redirectUrls);
+    apiContext.setMaskRequestId(true);
+    Payment resPayment = payment.create(apiContext);
+    for (Links links : resPayment.getLinks()) {
+      if (links.getRel().equals("approval_url"))
+        return new PaymentMethodResponse(links.getHref());
+    }
+    return null;
   }
 
 }

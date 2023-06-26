@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.capstone.backend.dto.paymentMethod.PaymentMethodRequest;
 import com.capstone.backend.dto.paymentMethod.PaymentMethodResponse;
 import com.capstone.backend.service.iservice.IPaymentMethodService;
+import com.paypal.base.rest.PayPalRESTException;
 
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -34,6 +35,13 @@ public class PaymentMethodController {
       @RequestBody PaymentMethodRequest request,
       HttpServletRequest req) throws UnsupportedEncodingException {
     PaymentMethodResponse response = paymentMethodService.vnpayMethod(req, request);
+    return new ResponseEntity<>(response, HttpStatus.OK);
+  }
+
+  @PostMapping(value = "/paypal")
+  public ResponseEntity<?> paypalMethod(@RequestBody PaymentMethodRequest request)
+      throws PayPalRESTException {
+    PaymentMethodResponse response = paymentMethodService.paypalMethod(request);
     return new ResponseEntity<>(response, HttpStatus.OK);
   }
 }
